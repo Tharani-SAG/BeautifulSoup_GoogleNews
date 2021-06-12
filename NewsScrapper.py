@@ -9,23 +9,37 @@ from bs4 import BeautifulSoup
 
 class NewsScrapper:
     def __init__(self):
-        self.images = []
+        self.images = {}
 
     def get_images(self, url):
         dom = urllib.request.urlopen(url).read()
         bs = BeautifulSoup(dom, "html.parser")
-        img_tags = bs.find('body').findAll('img')
-        for img in img_tags:
-            self.images.append(img['src'])
+        body = bs.find('body')
+
+        headings = body.findAll('h3')
+        img_tags = body.findAll('img')
+
+        min_index = len(headings) if len(headings) < len(img_tags) else len(img_tags)
+
+        for index in range(min_index):
+            self.images[headings[index].text] = img_tags[index]['src']
 
     def list_images(self):
-        for image in self.images:
-            print(image)
+        for heading, image in self.images.items():
+            print(heading, image)
 
-    def show(self, index):
-        if index >= len(self.images):
+    def show_image_from_heading(self, keyword):
+        img_url = None
+        for heading in self.images.keys():
+            if keyword in heading:
+                img_url = self.images[heading]
+                break
+
+        if not img_url:
+            print("No image found for the keyword")
             return
-        response = requests.get(self.images[index])
+
+        response = requests.get(img_url)
         img = Image.open(BytesIO(response.content))
         img.show()
 
@@ -33,8 +47,8 @@ class NewsScrapper:
 def main():
     newsScrapper = NewsScrapper()
     newsScrapper.get_images('https://news.google.com/topstories?hl=en-IN&gl=IN&ceid=IN:en')
-    newsScrapper.list_images()
-    newsScrapper.show(2)
+    # newsScrapper.list_images()
+    newsScrapper.show_image_from_heading('Digvijaya Singh')
 
 
 if __name__ == '__main__':
