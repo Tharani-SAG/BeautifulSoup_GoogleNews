@@ -1,0 +1,29 @@
+@startuml
+
+class NewsScrapper {
+    void get_images(url: string);
+    void list_images();
+    void show_image_from_heading();
+}
+
+package io {
+    class BytesIO
+}
+
+package bs4 {
+    class BeautifulSoup
+}
+
+package PIL {
+    class Image
+}
+
+package urllib {}
+
+
+NewsScrapper - urllib
+NewsScrapper *-- BeautifulSoup
+NewsScrapper - Image
+NewsScrapper *-- BytesIO
+
+@enduml
